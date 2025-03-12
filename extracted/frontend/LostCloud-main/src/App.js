@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import { ThemeProvider } from './contexts/ThemeContext'; // Added import
-import { AuthProvider } from './contexts/AuthContext'; // Added import and corrected path
+import { ThemeProvider } from './contexts/ThemeContext'; 
+import { AuthProvider } from './contexts/AuthContext'; 
 
 
 // Components

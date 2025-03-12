@@ -751,7 +751,7 @@ function Home() {
       <TestimonialSection>
         <SectionTitle>What Our Users Say</SectionTitle>
         <TestimonialGrid>
-          {testimonials.map((testimonial, index) => (
+          {testimonials.map((testimonial, index)=> (
             <TestimonialCard
               key={index}
               initial={{ opacity: 0, y: 30 }}
