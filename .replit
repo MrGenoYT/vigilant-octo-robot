@@ -1,7 +1,7 @@
 modules = ["nodejs-20"]
 
 [workflows]
-runButton = "Start Frontend"
+runButton = "Download Server"
 
 [[workflows.workflow]]
 name = "Start Backend"
@@ -18,6 +18,14 @@ author = 40441633
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd extracted/frontend/LostCloud-main && npm start"
+
+[[workflows.workflow]]
+name = "Download Server"
+author = 40441633
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node serve_downloads.js"
 
 [[ports]]
 localPort = 3000
