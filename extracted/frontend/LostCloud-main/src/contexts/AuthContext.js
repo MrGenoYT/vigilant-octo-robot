@@ -131,3 +131,124 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+import React, { createContext, useState, useEffect, useContext } from 'react';
+
+// Create the auth context
+export const AuthContext = createContext();
+
+// Auth provider component
+export const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Check if user is already logged in on component mount
+  useEffect(() => {
+    // Simulate checking for a stored token
+    const token = localStorage.getItem('authToken');
+    
+    if (token) {
+      // For now, just set a mock user
+      setCurrentUser({
+        id: '1',
+        username: 'demo_user',
+        email: 'demo@example.com',
+        role: 'user'
+      });
+    }
+    
+    setLoading(false);
+  }, []);
+
+  // Login function
+  const login = async (email, password) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // For development, just simulate a successful login
+      // In production, this would make an API call
+      
+      // Simulate a successful login
+      const userData = {
+        id: '1',
+        username: 'demo_user',
+        email,
+        role: 'user'
+      };
+      
+      // Store token in localStorage
+      localStorage.setItem('authToken', 'mock-jwt-token');
+      
+      // Update current user
+      setCurrentUser(userData);
+      
+      return userData;
+    } catch (err) {
+      setError(err.message || 'Failed to login');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Register function
+  const register = async (username, email, password) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // For development, just simulate a successful registration
+      // In production, this would make an API call
+      
+      // Simulate a successful registration
+      const userData = {
+        id: '1',
+        username,
+        email,
+        role: 'user'
+      };
+      
+      // Store token in localStorage
+      localStorage.setItem('authToken', 'mock-jwt-token');
+      
+      // Update current user
+      setCurrentUser(userData);
+      
+      return userData;
+    } catch (err) {
+      setError(err.message || 'Failed to register');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    setCurrentUser(null);
+  };
+
+  // Check if user has admin role
+  const isAdmin = () => {
+    return currentUser?.role === 'admin';
+  };
+
+  const value = {
+    currentUser,
+    loading,
+    error,
+    login,
+    register,
+    logout,
+    isAdmin
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+// Custom hook to use the auth context
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
