@@ -9,7 +9,7 @@ author = 40441633
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd extracted/backend/LostCloud-backend-main && npm run dev"
+args = "cd extracted/backend/LostCloud-backend-main && npm install && npm start"
 
 [[workflows.workflow]]
 name = "Start Frontend"
