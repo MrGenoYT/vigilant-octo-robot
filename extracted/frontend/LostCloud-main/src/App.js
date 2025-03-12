@@ -1,88 +1,115 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import styled from 'styled-components';
-import { ThemeProvider } from './contexts/ThemeContext'; 
-import { AuthProvider } from './contexts/AuthContext'; 
 
-
-// Components
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { ParallaxProvider } from 'react-scroll-parallax';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import LoadingSpinner from './components/LoadingSpinner';
+import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import BotDetails from './pages/BotDetails';
-import CreateBot from './pages/CreateBot';
-import Profile from './pages/Profile';
-import Documentation from './pages/Documentation';
-import Pricing from './pages/Pricing';
-import NotFound from './pages/NotFound';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-
-// Styled Components
-const AppContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
-  transition: all 0.3s ease;
-`;
-
-const MainContent = styled.main`
-  flex: 1;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
-`;
+// Lazy load pages for better performance
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const BotConfig = lazy(() => import('./pages/BotConfig'));
+const Forum = lazy(() => import('./pages/Forum'));
+const ForumPost = lazy(() => import('./pages/ForumPost'));
+const CreateForumPost = lazy(() => import('./pages/CreateForumPost'));
+const Profile = lazy(() => import('./pages/Profile'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Router>
-            <AppContainer>
-              <Header isAuthenticated={isAuthenticated} />
-              <MainContent>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/bots/:id" element={<BotDetails />} />
-                  <Route path="/create-bot" element={<CreateBot />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/docs" element={<Documentation />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </MainContent>
+    <AuthProvider>
+      <ThemeProvider>
+        <ParallaxProvider>
+          <Router>
+            <div className="app">
+              <Header />
+              <main className="main-content">
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Routes>
+                    {/* Public routes */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    
+                    {/* Protected routes */}
+                    <Route 
+                      path="/dashboard" 
+                      element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/bots/:id/config" 
+                      element={
+                        <ProtectedRoute>
+                          <BotConfig />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/forum" 
+                      element={
+                        <ProtectedRoute>
+                          <Forum />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/forum/post/:id" 
+                      element={
+                        <ProtectedRoute>
+                          <ForumPost />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/forum/create" 
+                      element={
+                        <ProtectedRoute>
+                          <CreateForumPost />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/profile" 
+                      element={
+                        <ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    {/* Admin routes */}
+                    <Route 
+                      path="/admin/*" 
+                      element={
+                        <ProtectedRoute adminOnly={true}>
+                          <AdminDashboard />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    {/* Fallback routes */}
+                    <Route path="/404" element={<NotFound />} />
+                    <Route path="*" element={<Navigate to="/404" replace />} />
+                  </Routes>
+                </Suspense>
+              </main>
               <Footer />
-            </AppContainer>
-        </Router>
-      </AuthProvider>
-    </ThemeProvider>
+            </div>
+          </Router>
+        </ParallaxProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

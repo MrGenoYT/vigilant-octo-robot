@@ -1,6 +1,5 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
 
 // Create the auth context
 export const AuthContext = createContext();
@@ -10,119 +9,117 @@ export const useAuth = () => useContext(AuthContext);
 
 // Auth provider component
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Check if user is logged in on component mount
   useEffect(() => {
-    const checkAuth = async () => {
+    // Check if user is already logged in via JWT token in localStorage
+    const checkLoggedIn = async () => {
       try {
-        const response = await axios.get('/api/auth/current-user', {
-          withCredentials: true
-        });
+        const token = localStorage.getItem('authToken');
         
-        if (response.data.user) {
-          setUser(response.data.user);
+        if (token) {
+          // Validate token with backend
+          const response = await fetch('/api/auth/validate', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            setCurrentUser(userData);
+          } else {
+            // Token is invalid or expired
+            localStorage.removeItem('authToken');
+          }
         }
+        
+        setLoading(false);
       } catch (err) {
-        console.error('Auth check error:', err);
-        // Not setting error here as this is just a check
-      } finally {
+        console.error('Auth validation error:', err);
+        setError('Failed to validate authentication');
         setLoading(false);
       }
     };
     
-    checkAuth();
+    checkLoggedIn();
   }, []);
 
-  // Register a new user
+  // Login function
+  const login = async (email, password) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+      
+      localStorage.setItem('authToken', data.token);
+      setCurrentUser(data.user);
+      return data.user;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    setCurrentUser(null);
+  };
+
+  // Register function
   const register = async (userData) => {
-    setLoading(true);
-    setError(null);
-    
     try {
-      const response = await axios.post('/api/auth/register', userData);
-      setUser(response.data.user);
-      return response.data;
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+      
+      return data;
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.message);
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  // Login user
-  const login = async (credentials) => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await axios.post('/api/auth/login', credentials, {
-        withCredentials: true
-      });
-      setUser(response.data.user);
-      return response.data;
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Login with Google
-  const loginWithGoogle = async (tokenId) => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await axios.post('/api/auth/google', { tokenId }, {
-        withCredentials: true
-      });
-      setUser(response.data.user);
-      return response.data;
-    } catch (err) {
-      setError(err.response?.data?.message || 'Google login failed. Please try again.');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Logout user
-  const logout = async () => {
-    setLoading(true);
-    
-    try {
-      await axios.post('/api/auth/logout', {}, {
-        withCredentials: true
-      });
-      setUser(null);
-    } catch (err) {
-      console.error('Logout error:', err);
-      setError(err.response?.data?.message || 'Logout failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Update user information
-  const updateUser = (userData) => {
-    setUser(userData);
-  };
-
-  // Auth context value
   const value = {
-    user,
+    currentUser,
     loading,
     error,
-    register,
     login,
-    loginWithGoogle,
     logout,
-    updateUser
+    register
   };
 
   return (
@@ -131,3 +128,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;
