@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import styled from 'styled-components';
+import { ThemeProvider } from './contexts/ThemeContext'; // Added import
+import { AuthProvider } from './contexts/AuthContext'; // Added import and corrected path
+
 
 // Components
 import Header from './components/Header';
@@ -77,7 +80,7 @@ function App() {
               </MainContent>
               <Footer />
             </AppContainer>
-          </Router>
+        </Router>
       </AuthProvider>
     </ThemeProvider>
   );

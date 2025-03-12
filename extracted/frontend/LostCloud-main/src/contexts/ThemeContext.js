@@ -1,6 +1,3 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-
-// Create the theme context
 export const ThemeContext = createContext();
 
 // Custom hook to use the theme

@@ -556,8 +556,8 @@ const features = [
     description: 'Granular access controls let you determine exactly who can view, edit, or manage your deployed bots.'
   },
   {
-    icon: <FaUsers />,
     title: 'Team Collaboration',
+    icon: <FaUsers />,
     description: 'Work together with your team by sharing bots, configurations, and monitoring responsibilities.'
   }
 ];

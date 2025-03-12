@@ -1,3 +1,5 @@
+//This file handles the React application entry point
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
