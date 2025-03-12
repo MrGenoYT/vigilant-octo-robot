@@ -69,16 +69,6 @@ const FormInput = styled.input`
     outline: none;
     border-color: #6c63ff;
     box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
-
-        {/* reCAPTCHA */}
-        <RecaptchaContainer>
-          <ReCaptcha 
-            onVerify={handleRecaptchaChange}
-            onExpire={handleRecaptchaExpired}
-          />
-          {errors.recaptcha && <ErrorText>{errors.recaptcha}</ErrorText>}
-        </RecaptchaContainer>
-
   }
 
   &::placeholder {
@@ -184,7 +174,6 @@ const RecaptchaContainer = styled.div`
   margin-top: 1rem;
 `;
 
-import ReCaptcha from '../components/ReCaptcha';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -196,6 +185,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState('');
+  const [recaptchaVerified, setRecaptchaVerified] = useState(false); // Added state for reCAPTCHA verification
   const recaptchaRef = useRef(null);
   const { register } = useAuth(); 
   const navigate = useNavigate();
@@ -209,10 +199,12 @@ const Register = () => {
 
   const handleRecaptchaChange = (token) => {
     setRecaptchaToken(token);
+    setRecaptchaVerified(!!token); // Update verification status
   };
 
   const handleRecaptchaExpired = () => {
     setRecaptchaToken('');
+    setRecaptchaVerified(false); // Update verification status
   };
 
   const validateForm = () => {
@@ -252,7 +244,7 @@ const Register = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    if (!recaptchaToken) {
+    if (!recaptchaVerified) {
       setErrors({recaptcha: 'Please complete the reCAPTCHA verification'});
       return;
     }
@@ -269,6 +261,7 @@ const Register = () => {
         recaptchaRef.current.reset();
       }
       setRecaptchaToken('');
+      setRecaptchaVerified(false); // Reset verification after error
     } finally {
       setIsSubmitting(false);
     }
@@ -353,11 +346,7 @@ const Register = () => {
           </FormGroup>
 
           <RecaptchaContainer>
-            <ReCaptcha
-              onVerify={handleRecaptchaChange}
-              onExpire={handleRecaptchaExpired}
-              theme="light"
-            />
+            <ReCaptcha ref={recaptchaRef} onVerify={handleRecaptchaChange} onExpire={handleRecaptchaExpired} theme="light" /> {/* Added ref */}
           </RecaptchaContainer>
           {errors.recaptcha && <ErrorMessage>{errors.recaptcha}</ErrorMessage>}
           {errors.submit && <ErrorMessage>{errors.submit}</ErrorMessage>}

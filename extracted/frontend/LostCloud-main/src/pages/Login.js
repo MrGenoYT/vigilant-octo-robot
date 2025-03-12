@@ -4,8 +4,8 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaLock, FaGoogle, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
-import ReCAPTCHA from 'react-google-recaptcha'; // Added import for ReCAPTCHA
-import { GoogleAuthContext } from '../context/GoogleAuthContext'; // Added import for GoogleAuthContext
+import ReCAPTCHA from 'react-google-recaptcha'; 
+import { GoogleAuthContext } from '../context/GoogleAuthContext'; 
 
 
 const PageContainer = styled.div`
@@ -230,9 +230,7 @@ const ForgotPasswordLink = styled(Link)`
   }
 `;
 
-const RecaptchaContainer = styled.div`
-  margin-bottom: 1rem;
-`;
+// RecaptchaContainer is now provided by the ReCaptcha component
 
 const GoogleButtonContainer = styled.div`
   margin-top: 1rem;
@@ -250,7 +248,7 @@ function Login() {
   const recaptchaRef = useRef(null);
   const navigate = useNavigate();
 
-  const { login } = useContext(AuthContext);
+  const { login } = useContext(GoogleAuthContext); //Corrected context import
   const { renderGoogleButton, isGoogleInitialized } = useContext(GoogleAuthContext);
 
   useEffect(() => {
@@ -363,13 +361,12 @@ function Login() {
             Forgot your password?
           </ForgotPasswordLink>
 
-          <RecaptchaContainer>
-            <ReCaptcha
-              onVerify={handleRecaptchaChange}
-              onExpire={handleRecaptchaExpired}
-              theme="light"
-            />
-          </RecaptchaContainer>
+          <ReCAPTCHA
+            sitekey="your_sitekey" // Replace with your actual site key
+            onVerify={handleRecaptchaChange}
+            onExpire={handleRecaptchaExpired}
+            theme="light"
+          />
 
           <SubmitButton
             type="submit"
@@ -411,281 +408,5 @@ function Login() {
     </PageContainer>
   );
 }
-
-export default Login;
-import React, { useState, useRef, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
-import ReCaptcha from '../components/ReCaptcha';
-import { GoogleAuthContext } from '../context/GoogleAuthContext';
-
-const LoginPage = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 2rem;
-`;
-
-const FormContainer = styled(motion.div)`
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  padding: 2.5rem;
-  width: 100%;
-  max-width: 450px;
-`;
-
-const FormTitle = styled.h1`
-  text-align: center;
-  margin-bottom: 2rem;
-  color: #333;
-  font-size: 2rem;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #333;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-
-  &:focus {
-    border-color: #6c63ff;
-    outline: none;
-  }
-`;
-
-const Button = styled.button`
-  width: 100%;
-  padding: 0.75rem;
-  margin-top: 1rem;
-  background-color: #6c63ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color: #5a4fff;
-  }
-
-  &:disabled {
-    background-color: #b3b3b3;
-    cursor: not-allowed;
-  }
-`;
-
-const ErrorText = styled.p`
-  color: #e74c3c;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-`;
-
-const OrDivider = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 1.5rem 0;
-  
-  &:before, &:after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background-color: #eee;
-  }
-  
-  span {
-    padding: 0 10px;
-    color: #999;
-    font-size: 0.9rem;
-  }
-`;
-
-const GoogleButton = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-`;
-
-const RegisterLink = styled.p`
-  text-align: center;
-  margin-top: 1.5rem;
-  color: #ccc;
-  font-size: 0.9rem;
-
-  a {
-    color: #6c63ff;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
-
-    &:hover {
-      color: #5a4fff;
-      text-decoration: underline;
-    }
-  }
-`;
-
-const RecaptchaContainer = styled.div`
-  margin-top: 1rem;
-`;
-
-const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [recaptchaToken, setRecaptchaToken] = useState('');
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const { renderGoogleButton, isGoogleInitialized } = useContext(GoogleAuthContext);
-
-  React.useEffect(() => {
-    if (isGoogleInitialized) {
-      renderGoogleButton('googleSignInButton');
-    }
-  }, [isGoogleInitialized, renderGoogleButton]);
-
-  const handleRecaptchaChange = (token) => {
-    setRecaptchaToken(token);
-  };
-
-  const handleRecaptchaExpired = () => {
-    setRecaptchaToken('');
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    if (!recaptchaToken) {
-      setErrors({recaptcha: 'Please complete the reCAPTCHA verification'});
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const result = await login(formData.email, formData.password, recaptchaToken);
-      if (result.success) {
-        navigate('/dashboard');
-      } else {
-        setErrors({ submit: result.error });
-      }
-    } catch (error) {
-      setErrors({ 
-        submit: error.response?.data?.message || 'Login failed. Please try again.' 
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <LoginPage>
-      <FormContainer
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <FormTitle>Sign In</FormTitle>
-        <form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-            />
-            {errors.email && <ErrorText>{errors.email}</ErrorText>}
-          </FormGroup>
-          
-          <FormGroup>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-            />
-            {errors.password && <ErrorText>{errors.password}</ErrorText>}
-          </FormGroup>
-
-          {/* reCAPTCHA */}
-          <RecaptchaContainer>
-            <ReCaptcha 
-              onVerify={handleRecaptchaChange}
-              onExpire={handleRecaptchaExpired}
-            />
-            {errors.recaptcha && <ErrorText>{errors.recaptcha}</ErrorText>}
-          </RecaptchaContainer>
-          
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing In...' : 'Sign In'}
-          </Button>
-          
-          {errors.submit && <ErrorText>{errors.submit}</ErrorText>}
-        </form>
-        
-        <OrDivider>
-          <span>OR</span>
-        </OrDivider>
-        
-        <GoogleButton id="googleSignInButton" />
-        
-        <RegisterLink>
-          Don't have an account? <Link to="/register">Sign Up</Link>
-        </RegisterLink>
-      </FormContainer>
-    </LoginPage>
-  );
-};
 
 export default Login;
