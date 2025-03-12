@@ -69,6 +69,16 @@ const FormInput = styled.input`
     outline: none;
     border-color: #6c63ff;
     box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+
+        {/* reCAPTCHA */}
+        <RecaptchaContainer>
+          <ReCaptcha 
+            onVerify={handleRecaptchaChange}
+            onExpire={handleRecaptchaExpired}
+          />
+          {errors.recaptcha && <ErrorText>{errors.recaptcha}</ErrorText>}
+        </RecaptchaContainer>
+
   }
 
   &::placeholder {
@@ -173,6 +183,8 @@ const LoginLink = styled.p`
 const RecaptchaContainer = styled.div`
   margin-top: 1rem;
 `;
+
+import ReCaptcha from '../components/ReCaptcha';
 
 const Register = () => {
   const [formData, setFormData] = useState({
