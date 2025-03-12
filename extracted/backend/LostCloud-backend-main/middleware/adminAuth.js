@@ -26,6 +26,7 @@ module.exports = async function(req, res, next) {
 };
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 module.exports = async function(req, res, next) {
   // Get token from header

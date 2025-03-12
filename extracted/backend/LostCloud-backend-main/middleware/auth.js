@@ -1,6 +1,8 @@
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 // Middleware to check if user is authenticated
 exports.isAuthenticated = (req, res, next) => {

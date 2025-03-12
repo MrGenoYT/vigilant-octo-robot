@@ -1,138 +1,135 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
 
-const AuthContext = createContext();
+import React, { createContext, useState, useEffect, useContext } from 'react';
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+// Create the auth context
+export const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
+// Custom hook to use the auth context
+export const useAuth = () => useContext(AuthContext);
+
+// Auth provider component
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Check if user is authenticated on initial load
+  
+  // Check if user is logged in when the component mounts
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const res = await axios.get('/api/auth/me');
-        if (res.data) {
-          setUser(res.data);
-          setIsAuthenticated(true);
+        setLoading(true);
+        // Call your API to check if user is authenticated
+        const response = await fetch('/api/auth/check-status', {
+          credentials: 'include' // Include cookies in the request
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        } else {
+          setUser(null);
         }
       } catch (err) {
+        console.error('Auth check failed:', err);
+        setError('Failed to authenticate user');
         setUser(null);
-        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
     };
-
+    
     checkAuthStatus();
   }, []);
-
+  
   // Login function
-  const login = async (email, password) => {
+  const login = async (credentials) => {
     try {
+      setLoading(true);
       setError(null);
-      const res = await axios.post('/api/auth/login', { email, password });
-      setUser(res.data.user);
-      setIsAuthenticated(true);
-      return { success: true };
+      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials),
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+      
+      setUser(data.user);
+      return data.user;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
-      setError(errorMessage);
-      return { success: false, message: errorMessage };
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
-
+  
   // Register function
   const register = async (userData) => {
     try {
+      setLoading(true);
       setError(null);
-      const res = await axios.post('/api/auth/register', userData);
-      return { success: true, data: res.data };
+      
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+      
+      return data;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Registration failed. Please try again.';
-      setError(errorMessage);
-      return { success: false, message: errorMessage };
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
-
+  
   // Logout function
   const logout = async () => {
     try {
-      await axios.post('/api/auth/logout');
+      setLoading(true);
+      
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
       setUser(null);
-      setIsAuthenticated(false);
     } catch (err) {
       console.error('Logout error:', err);
+    } finally {
+      setLoading(false);
     }
   };
-
-  // Update user profile
-  const updateProfile = async (userData) => {
-    try {
-      setError(null);
-      const res = await axios.put('/api/users/profile', userData);
-      setUser(res.data);
-      return { success: true, data: res.data };
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Profile update failed. Please try again.';
-      setError(errorMessage);
-      return { success: false, message: errorMessage };
-    }
-  };
-
-  // Request password reset
-  const requestPasswordReset = async (email) => {
-    try {
-      setError(null);
-      await axios.post('/api/auth/forgot-password', { email });
-      return { success: true };
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Password reset request failed. Please try again.';
-      setError(errorMessage);
-      return { success: false, message: errorMessage };
-    }
-  };
-
-  // Reset password with token
-  const resetPassword = async (token, password) => {
-    try {
-      setError(null);
-      await axios.post(`/api/auth/reset-password/${token}`, { password });
-      return { success: true };
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Password reset failed. Please try again.';
-      setError(errorMessage);
-      return { success: false, message: errorMessage };
-    }
-  };
-
-  const value = {
-    user,
-    isAuthenticated,
-    loading,
-    error,
-    login,
-    register,
-    logout,
-    updateProfile,
-    requestPasswordReset,
-    resetPassword
-  };
-
+  
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      error,
+      login,
+      register,
+      logout,
+      isAuthenticated: !!user
+    }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-// Custom hook to use the auth context
-export const useAuth = () => {
-  return useContext(AuthContext);
 };
