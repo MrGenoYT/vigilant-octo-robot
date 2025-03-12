@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 
@@ -9,90 +10,119 @@ export const useAuth = () => useContext(AuthContext);
 
 // Auth provider component
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Check if user is logged in on component mount
   useEffect(() => {
-    const checkLoggedIn = async () => {
+    const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('token');
-
-        if (token) {
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-          const response = await axios.get('/api/auth/me');
-
-          if (response.data.user) {
-            setCurrentUser(response.data.user);
-          } else {
-            localStorage.removeItem('token');
-            delete axios.defaults.headers.common['Authorization'];
-          }
+        const response = await axios.get('/api/auth/current-user', {
+          withCredentials: true
+        });
+        
+        if (response.data.user) {
+          setUser(response.data.user);
         }
       } catch (err) {
-        console.error('Error checking auth status:', err);
-        localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
+        console.error('Auth check error:', err);
+        // Not setting error here as this is just a check
       } finally {
         setLoading(false);
       }
     };
-
-    checkLoggedIn();
+    
+    checkAuth();
   }, []);
 
-  // Login function
-  const login = async (credentials) => {
-    try {
-      setError(null);
-      const response = await axios.post('/api/auth/login', credentials);
-      const { token, user } = response.data;
-
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setCurrentUser(user);
-
-      return user;
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
-      throw err;
-    }
-  };
-
-  // Register function
+  // Register a new user
   const register = async (userData) => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      setError(null);
       const response = await axios.post('/api/auth/register', userData);
-      const { token, user } = response.data;
-
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setCurrentUser(user);
-
-      return user;
+      setUser(response.data.user);
+      return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Logout function
-  const logout = () => {
-    localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
-    setCurrentUser(null);
+  // Login user
+  const login = async (credentials) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.post('/api/auth/login', credentials, {
+        withCredentials: true
+      });
+      setUser(response.data.user);
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Login with Google
+  const loginWithGoogle = async (tokenId) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.post('/api/auth/google', { tokenId }, {
+        withCredentials: true
+      });
+      setUser(response.data.user);
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google login failed. Please try again.');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Logout user
+  const logout = async () => {
+    setLoading(true);
+    
+    try {
+      await axios.post('/api/auth/logout', {}, {
+        withCredentials: true
+      });
+      setUser(null);
+    } catch (err) {
+      console.error('Logout error:', err);
+      setError(err.response?.data?.message || 'Logout failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update user information
+  const updateUser = (userData) => {
+    setUser(userData);
+  };
+
+  // Auth context value
   const value = {
-    currentUser,
+    user,
     loading,
     error,
-    login,
     register,
-    logout
+    login,
+    loginWithGoogle,
+    logout,
+    updateUser
   };
 
   return (
