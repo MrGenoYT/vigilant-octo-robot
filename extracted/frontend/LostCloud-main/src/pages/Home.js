@@ -749,7 +749,7 @@ function Home() {
       </StatsSection>
 
       <TestimonialSection>
-        <SectionTitle>What Our Users Say</SectionTitle>
+        <SectionTitle>What Our Users Say</SectionTitle</SectionTitle>
         <TestimonialGrid>
           {testimonials.map((testimonial, index)=>> (
             <TestimonialCard
