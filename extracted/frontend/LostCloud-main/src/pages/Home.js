@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -169,7 +168,7 @@ const SectionTitle = styled.h2`
   margin-bottom: 3.5rem;
   color: var(--text-color);
   position: relative;
-  
+
   &::after {
     content: '';
     display: block;
@@ -215,7 +214,7 @@ const FeatureCard = styled(motion.div)`
   &:hover {
     transform: translateY(-15px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    
+
     &::before {
       opacity: 0.05;
     }
@@ -263,11 +262,11 @@ const BenefitRow = styled.div`
   max-width: 1200px;
   margin: 0 auto 6rem;
   gap: 3rem;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
-  
+
   @media (max-width: 992px) {
     flex-direction: ${props => props.reverse ? 'column-reverse' : 'column'};
     gap: 2rem;
@@ -300,14 +299,14 @@ const BenefitImage = styled(motion.div)`
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   transform-style: preserve-3d;
   perspective: 1000px;
-  
+
   img {
     width: 100%;
     height: auto;
     display: block;
     transition: transform 0.5s ease;
   }
-  
+
   &:hover img {
     transform: scale(1.05);
   }
@@ -350,7 +349,7 @@ const TestimonialSection = styled.section`
   padding: 8rem 2rem;
   background-color: white;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -368,7 +367,7 @@ const TestimonialGrid = styled.div`
   gap: 2.5rem;
   max-width: 1200px;
   margin: 0 auto;
-  
+
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
@@ -380,7 +379,7 @@ const TestimonialCard = styled(motion.div)`
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   padding: 2.5rem;
   position: relative;
-  
+
   &::before {
     content: '"';
     position: absolute;
@@ -442,7 +441,7 @@ const CTASection = styled.section`
   text-align: center;
   position: relative;
   overflow: hidden;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -465,7 +464,7 @@ const CTATitle = styled.h2`
   font-size: 3rem;
   margin-bottom: 1.5rem;
   font-weight: 700;
-  
+
   @media (max-width: 768px) {
     font-size: 2.2rem;
   }
@@ -584,7 +583,7 @@ function Home() {
             />
           ))}
         </AnimatedCircles>
-        
+
         <HeroContent>
           <HeroTitle
             initial={{ opacity: 0, y: -30 }}
@@ -626,7 +625,7 @@ function Home() {
 
       <BenefitsSection>
         <SectionTitle>How LostCloud Transforms Your Minecraft Experience</SectionTitle>
-        
+
         <BenefitRow>
           <BenefitContent>
             <BenefitTitle
@@ -654,7 +653,7 @@ function Home() {
               <PrimaryButton to="/register" style={{ display: 'inline-flex' }}>Start Managing Bots</PrimaryButton>
             </motion.div>
           </BenefitContent>
-          
+
           <BenefitImage
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -666,7 +665,7 @@ function Home() {
             </Parallax>
           </BenefitImage>
         </BenefitRow>
-        
+
         <BenefitRow reverse>
           <BenefitImage
             initial={{ opacity: 0, scale: 0.9 }}
@@ -678,7 +677,7 @@ function Home() {
               <img src="https://via.placeholder.com/600x400?text=Community+Forums" alt="Community Forum" />
             </Parallax>
           </BenefitImage>
-          
+
           <BenefitContent>
             <BenefitTitle
               initial={{ opacity: 0, x: 30 }}

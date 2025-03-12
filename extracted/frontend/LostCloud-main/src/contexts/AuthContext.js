@@ -131,7 +131,6 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
-import React, { createContext, useState, useEffect, useContext } from 'react';
 
 // Create the auth context
 export const AuthContext = createContext();

@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ParallaxProvider } from 'react-scroll-parallax';
-import ThemeProvider from './contexts/ThemeContext';
-import { AuthProvider } from './contexts/AuthContext';
 import styled from 'styled-components';
 
 // Components
@@ -59,8 +56,7 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <ParallaxProvider>
-          <Router>
+        <Router>
             <AppContainer>
               <Header isAuthenticated={isAuthenticated} />
               <MainContent>
@@ -82,7 +78,6 @@ function App() {
               <Footer />
             </AppContainer>
           </Router>
-        </ParallaxProvider>
       </AuthProvider>
     </ThemeProvider>
   );
