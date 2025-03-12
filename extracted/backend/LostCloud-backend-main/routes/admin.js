@@ -4,6 +4,10 @@ const User = require('../models/User');
 const Bot = require('../models/Bot');
 const ForumPost = require('../models/ForumPost');
 const adminAuth = require('../middleware/adminAuth');
+const { isAdmin, isAuthenticated } = require('../middleware/auth');
+const Post = require('../models/Post');
+const Comment = require('../models/Comment');
+const Report = require('../models/Report');
 
 // Get all users (admin only)
 router.get('/users', adminAuth, async (req, res) => {
@@ -149,16 +153,140 @@ router.get('/statistics', adminAuth, async (req, res) => {
   }
 });
 
-// Get reported content (admin only)
-router.get('/reported', adminAuth, async (req, res) => {
-  try {
-    // This is a placeholder - you would implement actual report fetching logic
-    const reportedPosts = await ForumPost.find({ isReported: true })
-      .populate('author', 'username');
 
-    res.json(reportedPosts);
+// Get all reported content
+router.get('/reported-content', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const reports = await Report.find({ status: 'pending' })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('reportedBy', 'username email')
+      .populate('contentId');
+
+    const totalReports = await Report.countDocuments({ status: 'pending' });
+    const totalPages = Math.ceil(totalReports / limit);
+
+    res.json({
+      reports,
+      currentPage: page,
+      totalPages,
+      totalReports
+    });
   } catch (err) {
     console.error('Error fetching reported content:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Approve a report (mark as valid)
+router.put('/reported-content/:id/approve', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+
+    if (!report) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+
+    report.status = 'approved';
+    report.reviewedBy = req.user.id;
+    report.reviewedAt = Date.now();
+    await report.save();
+
+    res.json({ message: 'Report approved successfully', report });
+  } catch (err) {
+    console.error('Error approving report:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Dismiss a report (mark as invalid)
+router.put('/reported-content/:id/dismiss', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+
+    if (!report) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+
+    report.status = 'dismissed';
+    report.reviewedBy = req.user.id;
+    report.reviewedAt = Date.now();
+    await report.save();
+
+    res.json({ message: 'Report dismissed successfully', report });
+  } catch (err) {
+    console.error('Error dismissing report:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete reported content
+router.delete('/reported-content/:id', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const report = await Report.findOne({ contentId: req.params.id });
+
+    if (!report) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+
+    // Delete the content based on the content type
+    if (report.contentType === 'post') {
+      await Post.findByIdAndDelete(report.contentId);
+    } else if (report.contentType === 'comment') {
+      await Comment.findByIdAndDelete(report.contentId);
+    } else if (report.contentType === 'user') {
+      // Handle user reports differently - maybe flag the account or notify superadmin
+      const reportedUser = await User.findById(report.contentId);
+      reportedUser.isFlagged = true;
+      await reportedUser.save();
+    }
+
+    // Update all reports related to this content
+    await Report.updateMany(
+      { contentId: req.params.id },
+      { 
+        status: 'resolved', 
+        reviewedBy: req.user.id,
+        reviewedAt: Date.now()
+      }
+    );
+
+    res.json({ message: 'Content deleted and reports resolved' });
+  } catch (err) {
+    console.error('Error deleting reported content:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get admin dashboard stats
+router.get('/dashboard-stats', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const userCount = await User.countDocuments();
+    const postCount = await Post.countDocuments();
+    const pendingReports = await Report.countDocuments({ status: 'pending' });
+
+    const newUsersToday = await User.countDocuments({
+      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) }
+    });
+
+    const newPostsToday = await Post.countDocuments({
+      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) }
+    });
+
+    res.json({
+      userCount,
+      postCount,
+      pendingReports,
+      newUsersToday,
+      newPostsToday
+    });
+  } catch (err) {
+    console.error('Error fetching admin stats:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

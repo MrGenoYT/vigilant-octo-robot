@@ -25,6 +25,32 @@ const lightTheme = {
 const darkTheme = {
   backgroundColor: '#121212',
   textColor: '#e0e0e0',
+  cardBackground: 'rgba(30, 30, 30, 0.8)',
+  primaryColor: '#6c63ff',
+  secondaryColor: '#7a70ff',
+  borderColor: 'rgba(255, 255, 255, 0.1)',
+  navbarBackground: '#1a1a1a',
+  footerBackground: '#1a1a1a',
+  text: '#f5f5f5',
+  textSecondary: '#aaaaaa',
+  error: '#FF5252',
+  success: '#4CAF50',
+  warning: '#FFC107',
+  info: '#2196F3',
+  surface: '#242424',
+  border: '#333333',
+  divider: '#2a2a2a',
+  shadow: 'rgba(0, 0, 0, 0.3)',
+  overlay: 'rgba(0, 0, 0, 0.7)',
+  elevatedBackground: '#2a2a2a',
+};
+
+// Export both themes
+export { lightTheme, darkTheme };
+
+const darkTheme = {
+  backgroundColor: '#121212',
+  textColor: '#e0e0e0',
   cardBackground: 'rgba(30, 30, 30, 0.6)',
   primaryColor: '#6c63ff',
   secondaryColor: '#5a4fff',

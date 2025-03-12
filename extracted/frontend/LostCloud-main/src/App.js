@@ -138,3 +138,88 @@ const App = () => {
 };
 
 export default App;
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ParallaxProvider } from 'react-scroll-parallax';
+import ThemeProvider from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
+import GlobalStyle from './styles/GlobalStyle';
+
+// Layout components
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+
+// Page components
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import BotCreator from './pages/BotCreator';
+import BotManager from './pages/BotManager';
+import Forum from './pages/Forum';
+import ForumTopic from './pages/ForumTopic';
+import ForumPost from './pages/ForumPost';
+import Profile from './pages/Profile';
+import Help from './pages/Help';
+import Settings from './pages/Settings';
+import NotFound from './pages/NotFound';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
+// Admin pages
+import AdminDashboard from './pages/admin/Dashboard';
+import UserManagement from './pages/admin/UserManagement';
+import ReportedContent from './pages/admin/ReportedContent';
+import SystemSettings from './pages/admin/SystemSettings';
+
+// Auth components
+import PrivateRoute from './components/auth/PrivateRoute';
+import AdminRoute from './components/auth/AdminRoute';
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <ParallaxProvider>
+          <Router>
+          <GlobalStyle />
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/help" element={<Help />} />
+            
+            {/* Private routes */}
+            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="/bot-creator" element={<PrivateRoute><BotCreator /></PrivateRoute>} />
+            <Route path="/bot-manager" element={<PrivateRoute><BotManager /></PrivateRoute>} />
+            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+            <Route path="/profile/:username" element={<Profile />} />
+            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+            
+            {/* Forum routes */}
+            <Route path="/forum" element={<Forum />} />
+            <Route path="/forum/topic/:topicId" element={<ForumTopic />} />
+            <Route path="/forum/post/:postId" element={<ForumPost />} />
+            
+            {/* Admin routes */}
+            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+            <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
+            <Route path="/admin/reports" element={<AdminRoute><ReportedContent /></AdminRoute>} />
+            <Route path="/admin/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />
+            
+            {/* 404 route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Footer />
+        </Router>
+        </ParallaxProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;

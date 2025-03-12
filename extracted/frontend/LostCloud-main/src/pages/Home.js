@@ -560,6 +560,8 @@ const features = [
     icon: <FaUsers />,
     title: 'Team Collaboration',
     description: 'Work together with your team by sharing bots, configurations, and monitoring responsibilities.'
+  },
+    description: 'Work together with your team by sharing bots, configurations, and monitoring responsibilities.'
   }
 ];
 
