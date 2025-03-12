@@ -143,11 +143,14 @@ app.use(errorHandler);
 // Start server
 const PORT = process.env.PORT || 5000;
 
+// Make sure server is defined before listening
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 
-  // Initialize bot manager
-  botManager.init(io);
+  // Initialize bot manager if it exists
+  if (botManager && typeof botManager.init === 'function') {
+    botManager.init(io);
+  }
 });
 
 // Handle unhandled promise rejections

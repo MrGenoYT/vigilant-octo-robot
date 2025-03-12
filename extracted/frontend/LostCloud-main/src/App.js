@@ -128,7 +128,7 @@ const App = () => {
             } />
 
             {/* 404 page */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<Navigate to="/" replace />} /> {/* Added Navigate for 404 */}
           </Routes>
           <Footer />
         </ErrorBoundary>
@@ -138,8 +138,6 @@ const App = () => {
 };
 
 export default App;
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ParallaxProvider } from 'react-scroll-parallax';
 import ThemeProvider from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -182,40 +180,40 @@ function App() {
       <AuthProvider>
         <ParallaxProvider>
           <Router>
-          <GlobalStyle />
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="/help" element={<Help />} />
-            
-            {/* Private routes */}
-            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-            <Route path="/bot-creator" element={<PrivateRoute><BotCreator /></PrivateRoute>} />
-            <Route path="/bot-manager" element={<PrivateRoute><BotManager /></PrivateRoute>} />
-            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-            <Route path="/profile/:username" element={<Profile />} />
-            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-            
-            {/* Forum routes */}
-            <Route path="/forum" element={<Forum />} />
-            <Route path="/forum/topic/:topicId" element={<ForumTopic />} />
-            <Route path="/forum/post/:postId" element={<ForumPost />} />
-            
-            {/* Admin routes */}
-            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-            <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
-            <Route path="/admin/reports" element={<AdminRoute><ReportedContent /></AdminRoute>} />
-            <Route path="/admin/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />
-            
-            {/* 404 route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Footer />
-        </Router>
+            <GlobalStyle />
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
+              <Route path="/help" element={<Help />} />
+
+              {/* Private routes */}
+              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+              <Route path="/bot-creator" element={<PrivateRoute><BotCreator /></PrivateRoute>} />
+              <Route path="/bot-manager" element={<PrivateRoute><BotManager /></PrivateRoute>} />
+              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              <Route path="/profile/:username" element={<Profile />} />
+              <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+
+              {/* Forum routes */}
+              <Route path="/forum" element={<Forum />} />
+              <Route path="/forum/topic/:topicId" element={<ForumTopic />} />
+              <Route path="/forum/post/:postId" element={<ForumPost />} />
+
+              {/* Admin routes */}
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
+              <Route path="/admin/reports" element={<AdminRoute><ReportedContent /></AdminRoute>} />
+              <Route path="/admin/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />
+
+              {/* 404 route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            <Footer />
+          </Router>
         </ParallaxProvider>
       </AuthProvider>
     </ThemeProvider>
