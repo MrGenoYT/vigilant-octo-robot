@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaUser, FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import ReCAPTCHA from 'react-google-recaptcha';
+import ReCaptcha from '../components/ReCaptcha';
 import { GoogleAuthContext } from '../context/GoogleAuthContext'; // Requires implementation
 
 
@@ -353,11 +353,9 @@ const Register = () => {
           </FormGroup>
 
           <RecaptchaContainer>
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'}
-              onChange={handleRecaptchaChange}
-              onExpired={handleRecaptchaExpired}
+            <ReCaptcha
+              onVerify={handleRecaptchaChange}
+              onExpire={handleRecaptchaExpired}
               theme="light"
             />
           </RecaptchaContainer>
