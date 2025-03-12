@@ -2,57 +2,65 @@
 const express = require('express');
 const router = express.Router();
 
-// Get help resources
-router.get('/', (req, res) => {
-  const helpResources = {
-    faq: [
-      {
-        question: "What is LostCloud?",
-        answer: "LostCloud is a platform that allows you to create and manage Minecraft bots that can perform various tasks on your server. The bots can be customized and monitored through our user-friendly dashboard."
-      },
-      {
-        question: "How do I create a bot?",
-        answer: "After registering and logging in, navigate to the Dashboard and click on 'Create Bot'. Fill in the server details, customize your bot's settings, and click 'Create'."
-      },
-      {
-        question: "Is it free to use?",
-        answer: "Yes, LostCloud is currently free to use with basic features. We plan to introduce premium plans with advanced features in the future."
-      },
-      {
-        question: "How many bots can I create?",
-        answer: "Free accounts can create up to 2 bots. This limit may change in the future as we expand our services."
-      },
-      {
-        question: "Do the bots stay connected when I close my browser?",
-        answer: "Yes, the bots run on our servers and will remain connected to your Minecraft server even when you're offline, as long as both servers remain operational."
+// Get help data
+router.get('/', async (req, res) => {
+  try {
+    const helpData = {
+      faqs: [
+        {
+          question: 'What is LostCloud?',
+          answer: 'LostCloud is a platform for managing and monitoring Minecraft bots. It allows you to create, configure, and monitor bots that can perform various tasks in Minecraft servers.'
+        },
+        {
+          question: 'How do I create a bot?',
+          answer: 'To create a bot, navigate to the Bot Manager page and click on the "Create New Bot" button. Fill in the required information and settings for your bot, then click "Create".'
+        },
+        {
+          question: 'Is LostCloud free to use?',
+          answer: 'LostCloud offers both free and premium plans. The free plan includes basic features, while premium plans offer additional capabilities and higher limits.'
+        },
+        {
+          question: 'How can I report inappropriate content?',
+          answer: 'If you encounter inappropriate content, use the report button available on posts, comments, or user profiles. Our moderation team will review reports promptly.'
+        },
+        {
+          question: 'Can I use LostCloud on mobile devices?',
+          answer: 'Yes, LostCloud is fully responsive and works on desktops, tablets, and mobile phones.'
+        }
+      ],
+      botCommands: [
+        {
+          command: '/start',
+          description: 'Starts the bot'
+        },
+        {
+          command: '/stop',
+          description: 'Stops the bot'
+        },
+        {
+          command: '/status',
+          description: 'Shows the current status of the bot'
+        },
+        {
+          command: '/settings',
+          description: 'Displays or changes bot settings'
+        },
+        {
+          command: '/help',
+          description: 'Shows available commands and their descriptions'
+        }
+      ],
+      contact: {
+        email: 'support@lostcloud.io',
+        discord: 'https://discord.gg/lostcloud'
       }
-    ],
-    tutorials: [
-      {
-        title: "Getting Started with LostCloud",
-        url: "/forum/category/Tutorials",
-        description: "A comprehensive guide for beginners to set up their first bot."
-      },
-      {
-        title: "Bot Commands and Actions",
-        url: "/forum/category/Commands",
-        description: "Learn about the various commands you can use to control your bots."
-      },
-      {
-        title: "Advanced Bot Configuration",
-        url: "/forum/category/Advanced",
-        description: "Explore advanced features and settings for power users."
-      }
-    ],
-    contact: {
-      email: "support@lostcloud.io",
-      discord: "https://discord.gg/lostcloud",
-      twitter: "@LostCloudApp"
-    }
-  };
-  
-  res.json(helpResources);
+    };
+
+    res.json(helpData);
+  } catch (err) {
+    console.error('Error fetching help data:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
-// Export the router
 module.exports = router;

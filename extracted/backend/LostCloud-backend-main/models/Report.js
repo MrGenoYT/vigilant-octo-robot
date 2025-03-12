@@ -49,4 +49,4 @@ ReportSchema.index({ contentType: 1, contentId: 1 });
 ReportSchema.index({ status: 1 });
 ReportSchema.index({ reportedAt: -1 });
 
-module.exports = mongoose.model('Report', 'reports');
+module.exports = mongoose.model('Report', ReportSchema, 'reports');
